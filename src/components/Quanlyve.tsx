@@ -4,11 +4,14 @@ import React, { useEffect, useState, Fragment } from "react";
 import { db } from "../firebase.config";
 import type { ColumnsType } from 'antd/lib/table';
 import { CSVLink } from "react-csv"
-import { set } from "immer/dist/internal";
 import moment, { Moment } from "moment";
-import { MoreOutlined } from "@ant-design/icons";
+import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
 import { RangePickerProps } from "antd/lib/date-picker";
+import { CheckboxValueType } from "antd/lib/checkbox/Group";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import '../styles/header.css'
+import { Typography } from 'antd';
+const { Title } = Typography;
 interface tickets {
     Id: string;
     BlockingCode: string;
@@ -18,6 +21,11 @@ interface tickets {
     Status: string;
     TicketNumber: string;
 
+}
+interface filterValue {
+    Date: string,
+    Status: string,
+    Gate: string,
 }
 const tagColor = (param: string) => {
     switch (param) {
@@ -45,23 +53,40 @@ const Quanlyve = () => {
     const dateFormat = 'DD/MM/YYYY';
     const [DateData, setDateData] = useState('');
     const [modalTaskId, setModalTaskId] = useState<tickets>({ Id: '', BlockingCode: '', Date: '', ExpireDate: '', Gate: '', Status: '', TicketNumber: '' });
-    
+
+    // state lien quan den checkbox
+    const plainOptions = ['Cổng 1', 'Cổng 2', 'Cổng 3', 'Cổng 4', 'Cổng 5'];
+    const [indeterminate, setIndeterminate] = useState(true);
+    const [isCheckAll, setIsCheckAll] = useState(false);
     //useState lien quan den button loc ve.
     const [filterModal, setFilterModal] = useState(false);
-    const [DateFrom, setDateFrom] = useState<moment.Moment>();
-    const [DateTo, setDateTo] = useState<moment.Moment>();
-    const [FilterModalGate,setFilterModalGate]=useState();
-    const [FilterModalStatus,setFilterModalStatus]=useState('all');
+    const [DateFrom, setDateFrom] = useState(new Date());
+    const [DateTo, setDateTo] = useState(new Date());
+    const [FilterModalGate, setFilterModalGate] = useState<CheckboxValueType[]>();
+    const [FilterModalStatus, setFilterModalStatus] = useState('all');
+
     const radioButton = (e: RadioChangeEvent) => {
         console.log('radio checked', e.target.value);
         setFilterModalStatus(e.target.value);
     }
-    const checkBox = (e: CheckboxChangeEvent) => {
-
+    const checkBox = (checkedValues: CheckboxValueType[]) => {
+        // console.log('checked = ', checkedValues);
+        setFilterModalGate(checkedValues);
+        setIndeterminate(!!checkedValues.length && checkedValues.length < plainOptions.length);
+        setIsCheckAll(checkedValues.length === plainOptions.length);
+        // console.log('array checked : ' , FilterModalGate);     
     }
-    
-   
-   
+
+    // useEffect(() =>{
+    //    console.log (FilterModalGate);
+    // },[FilterModalGate])
+    const onCheckAllChange = (e: CheckboxChangeEvent) => {
+        setIsCheckAll(!isCheckAll);
+        setFilterModalGate(e.target.checked ? plainOptions : []);
+        setIndeterminate(false);
+
+    };
+    ///
     const onChange: DatePickerProps['onChange'] = (date, dateString) => {
         // console.log(dateString);
         setDateData(dateString);
@@ -75,32 +100,40 @@ const Quanlyve = () => {
     }
     const handleModal = () => {
 
+        const filteredData = dataSource.filter(entry => {
+            if (FilterModalStatus == "all") {
+                console.log("all")
+                return ((
+                    FilterModalGate?.includes(entry.Gate)
+                    && moment(entry.Date, dateFormat).toDate() > DateFrom
+                    && moment(entry.Date, dateFormat).toDate() < DateTo))
+            }
+            else {
+                return ((
+                    entry.Status == FilterModalStatus
+                    && FilterModalGate?.includes(entry.Gate)
+                    && moment(entry.Date, dateFormat).toDate() > DateFrom
+                    && moment(entry.Date, dateFormat).toDate() < DateTo))
+
+            }
+        }
+        );
+        setDataSources(filteredData);
         setFilterModal(false);
     }
-    const onChange1 = (
-        value: DatePickerProps['value'] | RangePickerProps['value'],
-        dateString: [string, string] | string,
-    ) => {
-        const time1 = moment('12/07/2022', 'DD/MM/YYYY');
-        const time2 = moment(dateString[0], 'DD/MM/YYYY');
-        const time3 = moment(dateString[1], 'DD/MM/YYYY')
-        setDateFrom(time2);
-        setDateTo(time3);
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
-        console.log(moment(time1).isBetween(DateFrom, DateTo, "day"));
+    const onChange1: DatePickerProps['onChange'] = (date, dateString) => {
+        //console.log(moment(date).toDate());
+        setDateFrom(moment(date).toDate());
     };
-    const onChange2 = (
-        value: DatePickerProps['value'] | RangePickerProps['value'],
-        dateString: [string, string] | string,
-    ) => {
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
+    const onChange2: DatePickerProps['onChange'] = (date, dateString) => {
+        // console.log(date, dateString);
+        setDateTo(moment(date).toDate());
     };
 
     const onOk = (value: DatePickerProps['value'] | RangePickerProps['value']) => {
         console.log('onOk: ', value);
     };
+
 
     //modal update ngày vé
     const showModal = (data: tickets) => {
@@ -208,8 +241,6 @@ const Quanlyve = () => {
         },
     ];
 
-
-
     //const dataSource:QueryDocumentSnapshot<DocumentData>[] = tickets;
     //<Table key="quanlyve" dataSource={dataSource} columns={columns} />
     const dataSource: tickets[] = tickets;
@@ -220,11 +251,13 @@ const Quanlyve = () => {
     return (
         <>
             <div>
-                <h1>Danh Sách Vé</h1>
+            <Title>Danh Sách Vé</Title>
                 <div className="search-inner">
                     <Input
                         placeholder="tìm theo số vé"
+                        className="search"
                         value={SearchValue}
+                        suffix={<SearchOutlined/>}
                         onChange={e => {
                             const currValue = e.target.value;
                             setSearchValue(currValue);
@@ -233,9 +266,11 @@ const Quanlyve = () => {
                             );
                             setDataSources(filteredData);
                         }}
-                        style={{ float: "left", display: "inline", width: "144px" }}
+                        style={{ float: "left", width: "280px" , backgroundColor: '#EDEDED',borderRadius:'15px'}}
+                        
                     />
-                    <Button type="primary" shape="round" size="large" style={{ float: "right", display: "inline" }}><CSVLink
+                    
+                    <Button type="primary" shape="round" size="large" style={{ float: "right", display: "inline",backgroundColor:'#ff6600',borderRadius:"15px",borderColor:'#ff6600' }}><CSVLink
                         filename={"Expense_Table.csv"}
                         data={dataSource}
                         className="btn btn-primary">
@@ -245,7 +280,7 @@ const Quanlyve = () => {
                         type="primary"
                         shape="round"
                         size="large"
-                        style={{ float: "right", display: "inline" }}
+                        style={{ float: "right", display: "inline",backgroundColor:'#ff6600',borderRadius:"15px",borderColor:'#ff6600' }}
                         onClick={handleOpenModal}
                     >Lọc vé</Button>
 
@@ -267,7 +302,8 @@ const Quanlyve = () => {
                 </div>
 
                 <div style={{ display: "flex", flexWrap: "nowrap" }}>
-                    <DatePicker.RangePicker onChange={onChange1} onOk={onOk} format={dateFormat} />
+                    <DatePicker onChange={onChange1} onOk={onOk} format={dateFormat} />
+                    <DatePicker onChange={onChange2} onOk={onOk} format={dateFormat} />
                 </div>
                 <Space size={"middle"}>
                     <p>Tình trạng sử dụng </p>
@@ -281,28 +317,14 @@ const Quanlyve = () => {
                     </div>
                 </Space>
                 <div>
-                    <Checkbox.Group style={{ width: '100%' }}>
-                        <p>Cổng check-in</p>
-                        <div>
-                            <Row>
-                                <Col span={8}>
-                                    <Checkbox value="A">A</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="B">B</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="C">C</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="D">D</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="E">E</Checkbox>
-                                </Col>
-                            </Row>
-                        </div>
-                    </Checkbox.Group>
+                    <p>Cổng check-in</p>
+                    <div>
+                        <Col span={8}>
+                            <Checkbox value="all" onChange={onCheckAllChange} indeterminate={indeterminate} checked={isCheckAll} >Tất cả</Checkbox>
+                        </Col>
+                        <Checkbox.Group style={{ width: '100%' }} onChange={checkBox} options={plainOptions} value={FilterModalGate} disabled={isCheckAll} />
+                    </div>
+
                 </div>
 
 

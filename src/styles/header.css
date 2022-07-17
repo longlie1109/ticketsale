@@ -1,0 +1,93 @@
+.header{
+    margin: 0;
+    align-items: center;
+    display: flex;
+    width: 100%;
+    height: 60px;
+    border-radius: 12px;
+}
+
+.header .logo{
+    background-image: url("https://s3-alpha-sig.figma.com/img/a28a/533d/5a3e93c0e43fdc7e0a0cde0d92a2c304?Expires=1658102400&Signature=PKl8VRLxKDQ1AdvvQMTaaxSi1kIpjTq~Zb37uKdzkWfuGv9yI4xRQX5LAcKkih-Xge8epYXAunMsPtABd--Z9uMZdtaEsN~rR8wsbYg-R7pK~nfjSqA747U51fP5BERphuYKDTcxdl7fpqP5zTOxzhuXqyPt1zgSAXR55qJ3L1YbVSUPCla-pdUXce91w3sjSlEGqtfJEPumgy61TaRQupou27lK7Sml2lWqPlCwQqcFaP3b6T6arcm50FPcuOesCOHjjJJI1QEiLr0Ej7N1Yi47NcGCO-Vr0NjtASFufLgnaA5oG97XugDdK5ag5grsonknarKk-hEjurbPeS8gWA__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA");
+    background-size: 100% 100%;
+    position: absolute;
+    top: 8px;
+    left: 20px;
+    width: 105px;
+    height: 50px;
+}
+
+.header .search{
+    border: none;
+    outline: none;
+    background-color: #EDEDED;
+    width: 300px;
+    height: 30px;
+    font-size: 12px;
+    border-radius: 7px;
+    margin-left: 15%;
+    padding-left: 15px;
+    padding-right: 30px;
+    color:#afaeae; 
+}
+
+.header .searchicon{
+    position: absolute;
+    left: 507px;
+    font-size: 18px;
+    color: #3a3a3a;
+}
+
+.header .mailicon{
+    position: absolute;
+    left: 1370px;
+    font-size: 20px;
+}
+
+.header .bellicon{
+    position: absolute;
+    left: 1420px;
+    font-size: 20px;
+}
+
+.header .giticon{
+    position: absolute;
+    left: 1465px;
+    font-size: 35px;
+}
+.site-layout-background{
+    background-color:#ffffff;
+    margin: 16px 24px 16px 20px;
+    border-radius: 15px;
+    padding: 20px;
+}
+.ant-select-selection__placeholder {
+    color: blue;
+  }
+::placeholder {
+    color:#3a3a3a;
+  }
+.ant-input{
+    background-color:#EDEDED
+}
+
+.trangchu .donutchart{
+    width: 1230px;
+    height: 350px;
+    margin-left: 30px;
+    margin-top: 10px;
+    position: relative;
+}
+
+.trangchu .piechart{
+    position: absolute;
+    left: 220px;
+    display: flex;
+    height: 200px;
+    width: 100px;
+}
+.trangchu .piechart .div{
+    height: 100px;
+    width: 100px;
+    line-height: 75px;
+}

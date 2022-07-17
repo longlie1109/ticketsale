@@ -1,8 +1,12 @@
+import { Layout } from "antd";
 import React from "react";
-
+import '../styles/header.css'
 const Doisoatve = () => {
-    return <div className="index-page1">Day la trang doi soat ve </div>;
-      
-    
+    const { Header, Content, Footer, Sider } = Layout;
+    return <>
+       
+    </>;
+
+
 };
 export default Doisoatve;
