@@ -91,3 +91,21 @@
     width: 100px;
     line-height: 75px;
 }
+
+.filter-background{
+    display: flex;
+    background-color:#ffffff;
+    margin: 16px 24px 16px 20px;
+    border-radius: 15px;
+    padding: 20px;
+   
+    height: 200px;
+}
+.side{
+    float: right;
+    background-color:#ffffff;
+    width: inherit;
+}
+main.ant-layout-content.filter-background{
+    width: 200px;
+}

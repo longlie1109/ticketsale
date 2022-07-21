@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Area, Pie } from '@ant-design/plots';
 import { } from "@ant-design/charts";
-import { DatePicker, Space } from "antd";
+import { DatePicker, Layout, Space } from "antd";
 import '../styles/header.css'
 import { collection, DocumentData, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
 import { db } from "../firebase.config";
 import { Typography } from 'antd';
 const { Title } = Typography;
+const { Footer, Sider, Content } = Layout;
 interface Charts {
   Id: string,
   TimePeriod: string,
@@ -131,7 +132,9 @@ const InnerIndex = () => {
 
 
 
-  return (
+  return (<Content className="site-layout-background">
+            
+  
     <div className="trangchu">
       <Title>Thống kê</Title>
       <div className='doanhthu'>
@@ -165,6 +168,7 @@ const InnerIndex = () => {
       </div>
 
     </div>
+    </Content>
   )
 
 

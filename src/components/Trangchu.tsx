@@ -18,9 +18,7 @@ const Trangchu = () => {
         </Sider>
        
         <Layout>
-          <Content className="site-layout-background">
-            <Outlet />
-          </Content>
+        <Outlet />
          
         </Layout>
       </Layout>

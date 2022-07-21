@@ -12,6 +12,7 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import '../styles/header.css'
 import { Typography } from 'antd';
 const { Title } = Typography;
+const { Footer, Sider, Content } = Layout;
 interface tickets {
     Id: string;
     BlockingCode: string;
@@ -250,6 +251,7 @@ const Quanlyve = () => {
 
     return (
         <>
+        <Content className="site-layout-background">
             <div>
             <Title>Danh Sách Vé</Title>
                 <div className="search-inner">
@@ -329,6 +331,7 @@ const Quanlyve = () => {
 
 
             </Modal>
+            </Content>
         </>
         //  <DatePicker style={{ float: "left", marginRight: "100px" }} onChange={onChange1} format={dateFormat} />
         //  <DatePicker style={{ float: "right", marginLeft: "75px" }} onChange={onChange2} format={dateFormat} />
