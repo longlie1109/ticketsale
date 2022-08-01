@@ -17,12 +17,12 @@ const Trangchu = () => {
           <Sidebar />
         </Sider>
        
-        <Layout>
+        <Layout style={{paddingBottom:"20px"}}>
         <Outlet />
          
         </Layout>
       </Layout>
-      <Footer><p style={{float:'left',display:'flex',position:'absolute',left:'5px',top:'640px'}}>Copyright © 2020 Alta Software </p></Footer>
+      <Footer><p style={{float:'left',width:'auto',left:'5px',top:'640px'}}>Copyright © 2020 Alta Software </p></Footer>
     </Layout>
   );
 

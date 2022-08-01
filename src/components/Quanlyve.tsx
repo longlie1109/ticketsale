@@ -1,4 +1,4 @@
-import { Button, Dropdown, Space, Table, Tag, Modal, Layout, DatePicker, DatePickerProps, Input, Checkbox, Col, Row, Radio, RadioChangeEvent } from "antd";
+import { Button, Dropdown, Space, Table, Tag, Modal, Layout, DatePicker, DatePickerProps, Input, Checkbox, Col, Row, Radio, RadioChangeEvent, Divider } from "antd";
 import { collection, doc, DocumentData, getDoc, getDocs, onSnapshot, query, QueryDocumentSnapshot, updateDoc } from "firebase/firestore";
 import React, { useEffect, useState, Fragment } from "react";
 import { db } from "../firebase.config";
@@ -13,6 +13,7 @@ import '../styles/header.css'
 import { Typography } from 'antd';
 const { Title } = Typography;
 const { Footer, Sider, Content } = Layout;
+const style: React.CSSProperties = { padding: '8px 0' };
 interface tickets {
     Id: string;
     BlockingCode: string;
@@ -21,7 +22,7 @@ interface tickets {
     Gate: string;
     Status: string;
     TicketNumber: string;
-
+    Event: string;
 }
 interface filterValue {
     Date: string,
@@ -31,15 +32,15 @@ interface filterValue {
 const tagColor = (param: string) => {
     switch (param) {
         case 'used':
-            return (<><Tag color='green'>{param}</Tag></>)
+            return (<><Tag color='green' icon={"•"}>Đã sử dụng</Tag></>)
 
             break;
         case 'expire':
-            return (<><Tag color='red'>{param}</Tag></>)
+            return (<><Tag color='red' icon={"•"}>Hết hạn</Tag></>)
 
             break;
         default:
-            return (<><Tag color='geekblue'>{param}</Tag></>)
+            return (<><Tag color='geekblue' icon={"•"} >Chưa sử dụng</Tag></>)
 
             break;
     }
@@ -53,7 +54,7 @@ const Quanlyve = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const dateFormat = 'DD/MM/YYYY';
     const [DateData, setDateData] = useState('');
-    const [modalTaskId, setModalTaskId] = useState<tickets>({ Id: '', BlockingCode: '', Date: '', ExpireDate: '', Gate: '', Status: '', TicketNumber: '' });
+    const [modalTaskId, setModalTaskId] = useState<tickets>({ Id: '', BlockingCode: '', Date: '', ExpireDate: '', Gate: '', Status: '', TicketNumber: '', Event: '' });
 
     // state lien quan den checkbox
     const plainOptions = ['Cổng 1', 'Cổng 2', 'Cổng 3', 'Cổng 4', 'Cổng 5'];
@@ -103,7 +104,7 @@ const Quanlyve = () => {
 
         const filteredData = dataSource.filter(entry => {
             if (FilterModalStatus == "all") {
-                console.log("all")
+                //console.log("all")
                 return ((
                     FilterModalGate?.includes(entry.Gate)
                     && moment(entry.Date, dateFormat).toDate() > DateFrom
@@ -162,7 +163,7 @@ const Quanlyve = () => {
         data.docs.map((doc) => {
             result.push(doc);
             console.log(doc)
-            ticketResult.push({ Id: doc.id, BlockingCode: doc.get("BlockingCode"), Date: doc.get("Date"), ExpireDate: doc.get("ExpireDate"), Gate: doc.get("Gate"), Status: doc.get("Status"), TicketNumber: doc.get("TicketNumber") });
+            ticketResult.push({ Id: doc.id, BlockingCode: doc.get("BlockingCode"), Date: doc.get("Date"), ExpireDate: doc.get("ExpireDate"), Gate: doc.get("Gate"), Status: doc.get("Status"), TicketNumber: doc.get("TicketNumber"), Event: doc.get("Event") });
 
         });
         //ticketResult.map ((tick) =>{console.log(tick)})
@@ -201,6 +202,11 @@ const Quanlyve = () => {
             // render:(_, record) => (
             //      <text>{record.get("TicketNumber")}</text>
             //   ),
+        },
+        {
+            title: 'Sự kiện',
+            dataIndex: 'Event',
+            key: 'Sự kiện',
         },
         {
             title: 'Status',
@@ -251,86 +257,160 @@ const Quanlyve = () => {
 
     return (
         <>
-        <Content className="site-layout-background">
-            <div>
-            <Title>Danh Sách Vé</Title>
-                <div className="search-inner">
-                    <Input
-                        placeholder="tìm theo số vé"
-                        className="search"
-                        value={SearchValue}
-                        suffix={<SearchOutlined/>}
-                        onChange={e => {
-                            const currValue = e.target.value;
-                            setSearchValue(currValue);
-                            const filteredData = dataSource.filter(entry =>
-                                entry.TicketNumber.includes(currValue)
-                            );
-                            setDataSources(filteredData);
-                        }}
-                        style={{ float: "left", width: "280px" , backgroundColor: '#EDEDED',borderRadius:'15px'}}
-                        
-                    />
-                    
-                    <Button type="primary" shape="round" size="large" style={{ float: "right", display: "inline",backgroundColor:'#ff6600',borderRadius:"15px",borderColor:'#ff6600' }}><CSVLink
-                        filename={"Expense_Table.csv"}
-                        data={dataSource}
-                        className="btn btn-primary">
-                        Export to CSV
-                    </CSVLink></Button>
-                    <Button
-                        type="primary"
-                        shape="round"
-                        size="large"
-                        style={{ float: "right", display: "inline",backgroundColor:'#ff6600',borderRadius:"15px",borderColor:'#ff6600' }}
-                        onClick={handleOpenModal}
-                    >Lọc vé</Button>
-
-                </div>
-            </div>
-
-            <Table key="quanlyve" dataSource={dataSources} columns={columns}></Table>
-            <Modal title="Đổi ngày sử dụng vé" visible={isModalVisible} onOk={() => handleOk(modalTaskId.Id, DateData)} onCancel={handleCancel}>
-                <p>Số vé :         {modalTaskId.TicketNumber}</p>
-                <p>BookingCode:    {modalTaskId.BlockingCode}</p>
-                <p>Cổng:           {modalTaskId.Gate}</p>
-                <DatePicker onChange={onChange} placeholder={modalTaskId.Date} format="DD/MM/YYYY" />
-            </Modal>
-            <Modal title="Lọc vé" visible={filterModal} onOk={handleModal} onCancel={handleCancelModal}>
-
-                <div style={{ display: "flex", flexWrap: "nowrap" }}>
-                    <p style={{ float: "left", marginRight: "100px" }}>từ ngày</p>
-                    <p style={{ float: "right", marginLeft: "175px" }}>đến ngày</p>
-                </div>
-
-                <div style={{ display: "flex", flexWrap: "nowrap" }}>
-                    <DatePicker onChange={onChange1} onOk={onOk} format={dateFormat} />
-                    <DatePicker onChange={onChange2} onOk={onOk} format={dateFormat} />
-                </div>
-                <Space size={"middle"}>
-                    <p>Tình trạng sử dụng </p>
-                    <div>
-                        <Radio.Group value={FilterModalStatus} onChange={radioButton}>
-                            <Radio value={"all"}>Tất cả</Radio>
-                            <Radio value={"used"}>Đã sử dụng</Radio>
-                            <Radio value={"work"}>Chưa sử dụng</Radio>
-                            <Radio value={"expire"}>Hết hạn</Radio>
-                        </Radio.Group>
-                    </div>
-                </Space>
+            <Content className="site-layout-background">
                 <div>
-                    <p>Cổng check-in</p>
-                    <div>
-                        <Col span={8}>
-                            <Checkbox value="all" onChange={onCheckAllChange} indeterminate={indeterminate} checked={isCheckAll} >Tất cả</Checkbox>
-                        </Col>
-                        <Checkbox.Group style={{ width: '100%' }} onChange={checkBox} options={plainOptions} value={FilterModalGate} disabled={isCheckAll} />
-                    </div>
+                    <Title>Danh Sách Vé</Title>
+                    <div className="search-inner">
 
+                        <Input
+                            placeholder="tìm theo số vé"
+                            className="search"
+                            value={SearchValue}
+                            suffix={<SearchOutlined />}
+                            onChange={e => {
+                                const currValue = e.target.value;
+                                setSearchValue(currValue);
+                                const filteredData = dataSource.filter(entry =>
+                                    entry.TicketNumber.includes(currValue)
+                                );
+                                setDataSources(filteredData);
+                            }}
+                            style={{ float: "left", width: "280px", backgroundColor: '#EDEDED', borderRadius: '15px' }}
+
+                        />
+                        <Space size={"small"} style={{ float: "right" }}>
+                            <Button type="primary" shape="round" size="large" style={{ float: "right", fontWeight:"bolder",backgroundColor: '#FFFFFF', borderRadius: "15px", borderColor: '#ff6600' }}><CSVLink
+                                filename={"Expense_Table.csv"}
+                                data={dataSource}
+                                className="btn btn-primary">
+                                <p style={{color:"#FF993C"}}>Export to CSV</p>
+                            </CSVLink></Button>
+                            <Button
+                                
+                                shape="round"
+                                size="large"
+                                style={{ float: "right", backgroundColor: '#FFFFFF',fontWeight:"bolder", borderRadius: "15px", borderColor: '#ff6600' }}
+                                onClick={handleOpenModal}
+                            ><span style={{ color: "#FF993C",fontWeight:"bolder" }}>Lọc vé</span>
+                            </Button>
+                        </Space>
+                    </div>
                 </div>
 
+                <Table key="quanlyve" dataSource={dataSources} columns={columns}></Table>
+                <Modal visible={isModalVisible} onCancel={handleCancel} style={{ borderRadius: '15px' }}
+                    footer={[
+                        <div className="container">
+                            <div className="center">
+                                <Button key="cancel" onClick={handleCancel} className="button-cancel">
+                                    Hủy
+                                </Button>,
+                                <Button key="save" type="primary" onClick={() => handleOk(modalTaskId.Id, DateData)}
+                                    className="button-ok">
+                                    Lưu
+                                </Button></div></div>,
+                    ]}
+                    title={[
+                        <div className="container">
+                            <div className="center">
+                                <p><b></b>Đổi ngày sử dụng vé</p>
+                            </div>
+                        </div>
 
-            </Modal>
+                    ]}
+                    width={600}>
+                    <Row gutter={[12, 10]}>
+                        <Col className="gutter-row" span={6}>
+                            <div style={style}>Số vé:</div>
+                        </Col>
+                        <Col className="gutter-row" span={16}>
+                            <div style={style}>{modalTaskId.TicketNumber}</div>
+                        </Col>
+                        <Col className="gutter-row" span={6}>
+                            <div style={style}>Sự kiện:</div>
+                        </Col>
+                        <Col className="gutter-row" span={16}>
+                            <div style={style}>{modalTaskId.Event}</div>
+                        </Col>
+                        <Col className="gutter-row" span={6}>
+                            <div style={style}>Cổng:</div>
+                        </Col>
+                        <Col className="gutter-row" span={16}>
+                            <div style={style}>{modalTaskId.Gate}</div>
+                        </Col>
+                        <Col className="gutter-row" span={6}>
+                            <div style={style}>Ngày hết hạn:</div>
+                        </Col>
+                        <Col className="gutter-row" span={16}>
+                            <div style={style}><DatePicker onChange={onChange}
+                                placeholder={modalTaskId.Date} format="DD/MM/YYYY"
+                            /></div>
+                        </Col>
+
+                    </Row>
+
+                </Modal>
+
+
+                <Modal visible={filterModal} onOk={handleModal} onCancel={handleCancelModal} style={{ borderRadius: '15px' }}
+                
+                footer={[
+                    <div className="container">
+                        <div className="center">
+                            <Button key="cancel" onClick={handleCancelModal} className="button-cancel">
+                                Hủy
+                            </Button>,
+                            <Button key="save" type="primary" onClick={handleModal}
+                                className="button-ok">
+                                Lọc
+                            </Button></div></div>,
+                ]}
+                title={[
+                    <div className="container">
+                        <div className="center">
+                            <p><b></b>Đổi ngày sử dụng vé</p>
+                        </div>
+                    </div>
+
+                ]}
+                width={500}
+                >
+                
+                    <Row>
+                        
+                        <Col span={12} style={{fontFamily:"tabular-nums",fontSize:"16px",fontWeight:"500"}}><b>Từ ngày</b></Col>
+                        <Col span={12} style={{fontFamily:"tabular-nums",fontSize:"16px",fontWeight:"500"}}><b>Đến ngày</b></Col>
+                        
+                    </Row>
+                    <Row>
+                        <Col span={12}>  <DatePicker onChange={onChange1} onOk={onOk} format={dateFormat} /></Col>
+                        <Col span={12}>    <DatePicker onChange={onChange2} onOk={onOk} format={dateFormat} /></Col>
+                    </Row>
+                    <Divider orientation="left">Tình trạng sử dụng</Divider>
+
+                    <Space size={"large"} direction="horizontal">
+                        <div>
+                            <Radio.Group value={FilterModalStatus} onChange={radioButton}>
+                                <Radio value={"all"}>Tất cả</Radio>
+                                <Radio value={"used"}>Đã sử dụng</Radio>
+                                <Radio value={"work"}>Chưa sử dụng</Radio>
+                                 <Radio value={"expire"}>Hết hạn</Radio>
+                            </Radio.Group>
+                        </div>
+                    </Space>
+                    <Divider orientation="left">Cổng check-in</Divider>
+                    <Row gutter={[16, 24]}>
+                        <Col className="gutter-row" span={6}>
+                        <Checkbox value="all" onChange={onCheckAllChange} indeterminate={indeterminate} checked={isCheckAll} >Tất cả</Checkbox>
+                        </Col>
+                        <Col className="gutter-row" span={16}>
+                        <Checkbox.Group style={{ width: '100%' }} onChange={checkBox} options={plainOptions} value={FilterModalGate} disabled={isCheckAll} />
+                        </Col>
+                        
+                    </Row>
+
+
+                </Modal>
             </Content>
         </>
         //  <DatePicker style={{ float: "left", marginRight: "100px" }} onChange={onChange1} format={dateFormat} />

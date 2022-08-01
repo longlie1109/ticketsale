@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Button, Checkbox, Col, DatePicker, DatePickerProps, Input, Layout, Modal, Row, Select, Space, Table, Tag, TimePicker, TimePickerProps, Typography } from 'antd';
+import { Button, Checkbox, Col, DatePicker, DatePickerProps, Divider, Input, Layout, Modal, Row, Select, Space, Table, Tag, TimePicker, TimePickerProps, Typography } from 'antd';
 import { addDoc, collection, doc, DocumentData, getDocs, QueryDocumentSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../firebase.config";
 import { ColumnsType } from "antd/lib/table";
-import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
+import { FormOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons";
 import { CheckboxValueType } from "antd/lib/checkbox/Group";
 import moment, { Moment } from "moment";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
@@ -67,7 +67,7 @@ const Caidat = () => {
     const [nameAdd, setNameAdd] = useState("");
     const [dateHourAdd, setDateHourAdd] = useState("");
     const [expireDateHourAdd, setExpireDateHourAdd] = useState("");
-    
+
     // function trong modal cập nhật
     const handleOk = (id: string) => {
         updateEvent(id);
@@ -78,7 +78,17 @@ const Caidat = () => {
         setIsModalVisible(false);
     };
     const showModal = (data: events) => {
+        //nhớ set state
         setModalTaskId(data)
+        setName(data.Name)
+        setCodeForm(data.Code)
+        setDateForm(data.Date)
+        setDateHour(data.DateHour)
+        setExpireDateForm(data.ExpireDate)
+        setExpireDateHour(data.ExpireDateHour)
+        setComboPriceForm(data.ComboPrice)
+        setPriceForm(data.Price)
+        setStatusForm(data.Status)
         setIsModalVisible(true);
     };
     //checkbox
@@ -105,12 +115,12 @@ const Caidat = () => {
         console.log(date, dateString);
         setExpireDateForm(dateString)
     };
-    const onChange3=(time: Moment|null, timeString: string) => {
-        console.log(time,timeString);
+    const onChange3 = (time: Moment | null, timeString: string) => {
+        console.log(time, timeString);
         setDateHour(timeString);
     };
-    const onChange4 =(time: Moment|null, timeString: string) => {
-        console.log(time,timeString);
+    const onChange4 = (time: Moment | null, timeString: string) => {
+        console.log(time, timeString);
         setExpireDateHour(timeString);
     };
     const onChange5 = (e: CheckboxChangeEvent) => {
@@ -126,13 +136,14 @@ const Caidat = () => {
     const updateEvent = async (id: string) => {
         const data = doc(db, "caidat", id);
         const newFields = { Code: codeForm, Date: dateForm, ExpireDate: expireDateForm, Price: priceForm, Status: statusForm, ComboPrice: comboPriceForm, Name: name, DateHour: dateHour, ExpireDateHour: expireDateHour };
-        await updateDoc(data, newFields);
+        // await updateDoc(data, newFields);
+        console.log(newFields);
     }
     //ADD EVENT
     const addEvent = async () => {
         const data = collection(db, "caidat");
         const newFields = { Code: codeFormAdd, Date: dateFormAdd, ExpireDate: expireDateFormAdd, Price: priceFormAdd, Status: statusFormAdd, ComboPrice: comboPriceFormAdd, Name: nameAdd, DateHour: dateHourAdd, ExpireDateHour: expireDateHourAdd };
-        await addDoc(data,newFields)
+        await addDoc(data, newFields)
     }
 
 
@@ -155,12 +166,12 @@ const Caidat = () => {
         console.log(date, dateString);
         setDateFormAdd(dateString)
     };
-    const onChange9=(time: Moment|null, timeString: string) => {
-        console.log(time,timeString);
+    const onChange9 = (time: Moment | null, timeString: string) => {
+        console.log(time, timeString);
         setDateHourAdd(timeString);
     };
-    const onChange10=(time: Moment|null, timeString: string) => {
-        console.log(time,timeString);
+    const onChange10 = (time: Moment | null, timeString: string) => {
+        console.log(time, timeString);
         setExpireDateHourAdd(timeString);
     };
     //get firebase data
@@ -251,11 +262,21 @@ const Caidat = () => {
             render: (_, record, index) => (
                 <>
                     <text>{record.Status}</text>
-                    <Space size={"middle"}>
-                        <Button icon={<MoreOutlined />} onClick={() => showModal(record)}></Button>
-                    </Space>
+
                 </>
 
+            ),
+        },
+        {
+            title: '',
+            dataIndex: '',
+            key: '',
+            render: (_, record) => (
+                <>
+                    <Space size={"middle"}>
+                        <Button type="link" danger icon={<FormOutlined />} onClick={() => showModal(record)}>Cập nhật</Button>
+                    </Space>
+                </>
             ),
         },
     ];
@@ -263,90 +284,151 @@ const Caidat = () => {
     const [dataSources, setDataSources] = useState(dataSource);
     return (
         <>
-        <Content className="site-layout-background">
-            <div>
-                <Title>Danh Sách sự kiện</Title>
-                <div className="search-inner">
-                    <Input
-                        placeholder="tìm theo số vé"
-                        className="search"
-                        suffix={<SearchOutlined />}
-                        style={{ float: "left", width: "280px", backgroundColor: '#EDEDED', borderRadius: '15px' }} />
-
-                    <Button type="primary" shape="round" size="large" style={{ float: "right", display: "inline", backgroundColor: '#ff6600', borderRadius: "15px", borderColor: '#ff6600' }}>
-                        <CSVLink
-                            filename={"Expense_Table.csv"}
-                            data={dataSources}
-                            className="btn btn-primary">
-                            Export to CSV
-                        </CSVLink></Button>
-                    <Button
-                        type="primary"
-                        shape="round"
-                        size="large"
-                        style={{ float: "right", display: "inline", backgroundColor: '#ff6600', borderRadius: "15px", borderColor: '#ff6600' }}
-                        onClick={showModalAdd}
-                    >Thêm gói vé</Button>
-
+            <Content className="site-layout-background">
+                <div>
+                    <Title>Danh Sách sự kiện</Title>
+                    <div className="search-inner">
+                        <Input
+                            placeholder="tìm theo số vé"
+                            className="search"
+                            suffix={<SearchOutlined />}
+                            style={{ float: "left", width: "280px", backgroundColor: '#EDEDED', borderRadius: '15px' }} />
+                        <Space size={"small"} style={{ float: "right" }}>
+                            <Button type="primary" shape="round" size="large" style={{ float: "right",fontWeight:"bolder", backgroundColor: '#FFFFFF', borderRadius: "15px", borderColor: '#ff6600' }}>
+                                <CSVLink
+                                    filename={"Expense_Table.csv"}
+                                    data={dataSources}
+                                    className="btn btn-primary">
+                                    <span style={{ color: "#FF993C" }}>Export to CSV</span>
+                                </CSVLink></Button>
+                            <Button
+                                type="primary"
+                                shape="round"
+                                size="large"
+                                style={{ float: "right", backgroundColor: '#FFFFFF', borderRadius: "15px", borderColor: '#ff6600' }}
+                                onClick={showModalAdd}
+                            >
+                                <span style={{ color: "#FF993C",fontWeight:"bolder" }}>Thêm gói vé</span>
+                            </Button>
+                        </Space>
+                    </div>
                 </div>
-            </div>
-            <Modal title="Đổi ngày sử dụng vé" visible={isModalVisible} onOk={() => handleOk(modalTaskId.Id)} onCancel={handleCancel}>
-                <p>Mã sự kiện</p>
-                <input placeholder={modalTaskId.Code} defaultValue={modalTaskId.Code} onChange={(event) => (setCodeForm(event.target.value))} />
-                <p>Tên sự kiện</p>
-                <input placeholder={modalTaskId.Name} defaultValue={modalTaskId.Name} onChange={(event) => (setName(event.target.value))} />
-                <p>Ngày áp dụng</p>
-                <DatePicker onChange={onChange1} />
-                <TimePicker onChange={onChange3} defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} />
-                <p>Ngày hết hạn</p>
-                <DatePicker onChange={onChange2} />
-                <TimePicker onChange={onChange4} defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} />
-                <p>Gía vé áp dụng</p>
-                <Row>
-                    <Col span={8} >
+                <Modal
+                    visible={isModalVisible} className="caidat-modal"
+                    onOk={() => handleOk(modalTaskId.Id)} onCancel={handleCancel}
+                    title={[
+                        <div className="container">
+                            <div className="center">
+                                <p><b></b>Đổi ngày sử dụng vé</p>
+                            </div>
+                        </div>
+                    ]}
+                    footer={[
+                        <div className="container">
+                            <div className="center">
+                                <Button key="cancel" onClick={handleCancel} className="button-cancel">
+                                    Hủy
+                                </Button>,
+                                <Button key="save" type="primary" onClick={() => handleOk(modalTaskId.Id)}
+                                    className="button-ok">
+                                    Lưu
+                                </Button></div></div>,
+                    ]}
+                >
+                    <Row>
+
+                        <Col span={12} style={{ fontFamily: "tabular-nums", fontSize: "16px", fontWeight: "500" }}><b>Mã sự kiện</b></Col>
+                        <Col span={12} style={{ fontFamily: "tabular-nums", fontSize: "16px", fontWeight: "500" }}><b>Tên sự kiện</b></Col>
+
+                    </Row>
+                    <Row>
+                        <Col span={12}><input placeholder={modalTaskId.Code} defaultValue={modalTaskId.Code} onChange={(event) => (setCodeForm(event.target.value))} value={modalTaskId.Code} />  </Col>
+                        <Col span={12}><input placeholder={modalTaskId.Name} defaultValue={modalTaskId.Name} onChange={(event) => (setName(event.target.value))} value={modalTaskId.Name} />  </Col>
+                    </Row>
+                    <Row>
+                        <Col span={12}> <p>Ngày áp dụng</p></Col>
+                        <Col span={12}> <p>Ngày hết hạn</p></Col>
+                    </Row>
+                    <Row>
+                        <Col span={12}> <DatePicker onChange={onChange1} />
+                            <TimePicker onChange={onChange3} defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} /></Col>
+                        <Col span={12}><DatePicker onChange={onChange2} />
+                            <TimePicker onChange={onChange4} defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} /> </Col>
+                    </Row>
+                    <Divider orientation="left">Giá vé áp dụng</Divider>
+                    <Row>
                         <Checkbox value="Price" onChange={onChange5}>giá vé đơn</Checkbox>
-                        <Checkbox value="Combo" onChange={onChange6}>giá vé combo</Checkbox>
-                    </Col>
-                    <Col span={8}>
                         <input placeholder={modalTaskId.Price} defaultValue={modalTaskId.Price} onChange={(event) => { setPriceForm(event.target.value) }} disabled={!isChecked} />
-                        <input placeholder={modalTaskId.ComboPrice} defaultValue={modalTaskId.ComboPrice} onChange={(event) => setComboPriceForm(event.target.value)} disabled={!isCheckedCombo} />
-                    </Col>
-                </Row>
-                <p>Tình trạng</p>
-                <Select style={{ width: 200 }} onChange={handleChange}>
-                    <Option value="Tắt">Tắt</Option>
-                    <Option value="Đang áp dụng">Đang áp dụng</Option>
-                </Select>
-            </Modal>
-            <Modal title="Add Event" visible={filterModal} onOk={handleOpenModal} onCancel={handleCancelModal}>
-                <p>Mã sự kiện</p>
-                <input onChange={(event) => (setCodeFormAdd(event.target.value))} />
-                <p>Tên sự kiện</p>
-                <input onChange={(event) => (setNameAdd(event.target.value))} />
-                <p>Ngày áp dụng</p>
-                <DatePicker onChange={onChange8} />
-                <TimePicker onChange={onChange9} defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} />
-                <p>Ngày hết hạn</p>
-                <DatePicker onChange={onChange7} />
-                <TimePicker onChange={onChange10} defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} />
-                <p>Gía vé áp dụng</p>
-                <Row>
-                    <Col span={8} >
-                        <Checkbox value="Price" onChange={onChange5}>giá vé đơn</Checkbox>
+                    </Row>
+                    <Row>
                         <Checkbox value="Combo" onChange={onChange6}>giá vé combo</Checkbox>
-                    </Col>
-                    <Col span={8}>
-                        <input onChange={(event) => { setPriceFormAdd(event.target.value) }} disabled={!isChecked} />
-                        <input onChange={(event) => setComboPriceFormAdd(event.target.value)} disabled={!isCheckedCombo} />
-                    </Col>
-                </Row>
-                <p>Tình trạng</p>
-                <Select style={{ width: 200 }} onChange={handleChange1}>
-                    <Option value="Tắt">Tắt</Option>
-                    <Option value="Đang áp dụng">Đang áp dụng</Option>
-                </Select>
-            </Modal>
-            <Table key="quanlyve" dataSource={dataSources} columns={columns}></Table>
+                        <input placeholder={modalTaskId.ComboPrice} defaultValue={modalTaskId.ComboPrice} onChange={(event) => setComboPriceForm(event.target.value)} disabled={!isCheckedCombo} />
+                    </Row>
+                    <Divider orientation="left">Tình trạng</Divider>
+                    <Select style={{ width: 200 }} onChange={handleChange}>
+                        <Option value="Tắt">Tắt</Option>
+                        <Option value="Đang áp dụng">Đang áp dụng</Option>
+                    </Select>
+                </Modal>
+
+                <Modal
+                    className="caidat-add" visible={filterModal} onOk={handleOpenModal} onCancel={handleCancelModal}
+                    title={[
+                        <div className="container">
+                            <div className="center">
+                                <p><b>Thêm gói vé</b></p>
+                            </div>
+                        </div>
+                    ]}
+                    footer={[
+                        <div className="container">
+                            <div className="center">
+                                <Button key="cancel" onClick={handleCancelModal} className="button-cancel">
+                                    Hủy
+                                </Button>,
+                                <Button key="save" type="primary" onClick={handleOpenModal}
+                                    className="button-ok">
+                                    Lưu
+                                </Button></div></div>,
+                    ]}>
+                    <Row>
+
+                        <Col span={12} style={{ fontFamily: "tabular-nums", fontSize: "16px", fontWeight: "500" }}><b>Mã sự kiện</b></Col>
+                        <Col span={12} style={{ fontFamily: "tabular-nums", fontSize: "16px", fontWeight: "500" }}><b>Tên sự kiện</b></Col>
+
+                    </Row>
+                    <Row>
+                        <Col span={12}><input onChange={(event) => (setCodeFormAdd(event.target.value))} /></Col>
+                        <Col span={12}> <input onChange={(event) => (setNameAdd(event.target.value))} /></Col>
+                    </Row>
+                    
+                    <Row>
+                        <Col span={12}> <p>Ngày áp dụng</p></Col>
+                        <Col span={12}> <p>Ngày hết hạn</p></Col>
+                    </Row>
+                   <Row>
+                    <Col span={12}><DatePicker onChange={onChange8} />
+                    <TimePicker onChange={onChange9} defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} /></Col>
+                    <Col span={12}><DatePicker onChange={onChange7} />
+                    <TimePicker onChange={onChange10} defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} /></Col>
+                   </Row>
+                   <Divider orientation="left">Giá vé áp dụng</Divider>
+                   <Row>
+                    <Checkbox value="Price" onChange={onChange5}>giá vé đơn</Checkbox>
+                    <input onChange={(event) => { setPriceFormAdd(event.target.value) }} disabled={!isChecked} />
+                   </Row>
+                   <Row>
+                   <Checkbox value="Combo" onChange={onChange6}>giá vé combo</Checkbox>
+                   <input onChange={(event) => setComboPriceFormAdd(event.target.value)} disabled={!isCheckedCombo} />
+                   </Row>
+                   <Divider orientation="left">Tình trạng</Divider>
+                    <Select style={{ width: 200 }} onChange={handleChange1}>
+                        <Option value="Tắt">Tắt</Option>
+                        <Option value="Đang áp dụng">Đang áp dụng</Option>
+                    </Select>
+
+                </Modal>
+                <Table key="quanlyve" dataSource={dataSources} columns={columns}></Table>
             </Content>
         </>
     );
