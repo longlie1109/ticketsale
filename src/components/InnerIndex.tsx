@@ -3,7 +3,7 @@ import { Area, Pie } from '@ant-design/plots';
 import { } from "@ant-design/charts";
 import { DatePicker, DatePickerProps, Layout, Space } from "antd";
 import '../styles/header.css'
-import { collection, DocumentData, getDocs, QueryDocumentSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, DocumentData, getDocs, QueryDocumentSnapshot, orderBy, query,where } from "firebase/firestore";
 import { db } from "../firebase.config";
 import { Typography } from 'antd';
 import Item from "antd/lib/list/Item";
@@ -24,82 +24,22 @@ interface ChartTest {
   Value: number,
   Quarter: string,
 }
+interface PieTest {
+  Type: string,
+  Value: number,
+  Time: string,
+}
 
 
 
 
-// Donnut chart. for some god know reason this stupid chart dont accept array object from firebase. Will have to fix it later
-const DemoPie = () => {
-  const [pieData, setPieData] = useState<Pies[]>([]);
-  const pieRef = collection(db, "piechart");
-
-  const getChart = async () => {
-    const data = await getDocs(pieRef);
-    const chartResult: Pies[] = [];
-    const result: QueryDocumentSnapshot<DocumentData>[] = [];
-    data.docs.map((doc) => {
-      result.push(doc);
-      //console.log(doc)
-      chartResult.push({ type: doc.get('Type'), value: parseInt(doc.get('Value')) });
-    });
-    setPieData(chartResult);
-    setData(chartResult);
-    // console.log("chart result",chartResult)
-  };
-  useEffect(() => {
-    getChart();
-  }, []);
-
-  const dataSource: Pies[] = pieData;
-  const [data, setData] = useState(dataSource);
-  //console.log("chart data", data)
-
-  const config = {
-
-    appendPadding: 10,
-    data: data,
-    angleField: 'value',
-    colorField: 'type',
-    color: ['#4F75FF', '#FF8A48', '#FF85DE'],
-    radius: 1,
-    innerRadius: 0.6,
-    label: {
-      type: 'inner',
-      offset: '-50%',
-      content: '{value}',
-      style: {
-        textAlign: 'center',
-        fontSize: 14,
-      },
-    },
-    interactions: [
-      {
-        type: 'element-selected',
-      },
-      {
-        type: 'element-active',
-      },
-    ],
-    statistic: {
-      title: false,
-      content: {
-        style: {
-          whiteSpace: 'pre-wrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        },
-      },
-    },
-    height: 300
-  };
-  return <Pie {...config} />;
-};
+ 
 
 
 
 const InnerIndex = () => {
 
-  // Date picker:
+  
 
   // Area Chart
 
@@ -166,8 +106,80 @@ const InnerIndex = () => {
     setTotal(sum);
   }, [data])
 
+  //donnut chart
+  const [pieData, setPieData] = useState<PieTest[]>([]);
+    const pieRef = collection(db, "test2");
+  
+    const getChart1 = async () => {
+      const data = await getDocs(pieRef);
+      const chartResult: PieTest[] = [];
+      const result: QueryDocumentSnapshot<DocumentData>[] = [];
+      data.docs.map((doc) => {
+        result.push(doc);
+        //console.log(doc)
+        chartResult.push({ Type: doc.get('Type'), Value: parseInt(doc.get('Value')),Time:doc.get('TimePeriod') });
+      });
+      setPieData(chartResult);
+      setData1(chartResult);
+      console.log("chart result",chartResult)
+    };
+    useEffect(() => {
+      getChart1();
+    }, []);
+    const onChange2: DatePickerProps['onChange'] = (date, dateString) => {
 
-
+      const filteredData = dataSource1.filter(entry => { return (entry.Time.includes(dateString)) })
+      setData1(filteredData);
+      //console.log("filterdata", filteredData);
+    };
+    const dataSource1: PieTest[] = pieData;
+    const [PiedataSources, setPieDataSources] = useState(dataSource1);
+    const [data1, setData1] = useState(PiedataSources);
+    //console.log("chart data", data)
+  const DemoPie = () => {
+   
+    const config = {
+  
+      appendPadding: 10,
+      data: data1,
+      angleField: 'Value',
+      colorField: 'Type',
+      color: ['#4F75FF', '#FF8A48', '#FF85DE'],
+      radius: 1,
+      innerRadius: 0.6,
+      label: {
+        type: 'inner',
+        offset: '-50%',
+        content: '{value}',
+        style: {
+          textAlign: 'center',
+          fontSize: 14,
+        },
+      },
+      interactions: [
+        {
+          type: 'element-selected',
+        },
+        {
+          type: 'element-active',
+        },
+      ],
+      statistic: {
+        title: false,
+        content: {
+          style: {
+            whiteSpace: 'pre-wrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          },
+        },
+      },
+      height: 300
+    };
+    return <Pie {...config} />;
+  };
+  
+  //Export
   return (<Content className="site-layout-background">
 
 
@@ -191,10 +203,9 @@ const InnerIndex = () => {
           {total} VND
         </div>
       </div>
-
       <div className='donutchart'>
         <Space direction="vertical" style={{ marginLeft: '82%' }}>
-          <DatePicker onChange={() => onchange} picker="month" />
+          <DatePicker onChange={onChange2} picker="quarter" />
 
         </Space>
         <div className='piechart'>

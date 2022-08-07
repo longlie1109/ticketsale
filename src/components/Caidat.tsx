@@ -26,15 +26,15 @@ interface events {
 const tagColor = (param: string) => {
     switch (param) {
         case 'Đang áp dụng':
-            return (<><Tag color='green'>{param}</Tag></>)
+            return (<><Tag color='green'  icon={"•"} >{param}</Tag></>)
 
             break;
         case 'Tắt':
-            return (<><Tag color='red'>{param}</Tag></>)
+            return (<><Tag color='red'  icon={"•"}>{param}</Tag></>)
 
             break;
         default:
-            return (<><Tag color='geekblue'>{param}</Tag></>)
+            return (<><Tag color='grey'  icon={"•"}>{param}</Tag></>)
 
             break;
     }
@@ -136,7 +136,7 @@ const Caidat = () => {
     const updateEvent = async (id: string) => {
         const data = doc(db, "caidat", id);
         const newFields = { Code: codeForm, Date: dateForm, ExpireDate: expireDateForm, Price: priceForm, Status: statusForm, ComboPrice: comboPriceForm, Name: name, DateHour: dateHour, ExpireDateHour: expireDateHour };
-        // await updateDoc(data, newFields);
+        await updateDoc(data, newFields);
         console.log(newFields);
     }
     //ADD EVENT
@@ -193,7 +193,7 @@ const Caidat = () => {
 
         getEvents();
 
-    }, [])
+    }, [isModalVisible,filterModal])
     const columns: ColumnsType<events> = [
         {
             title: 'STT',
@@ -260,10 +260,7 @@ const Caidat = () => {
             dataIndex: 'Status',
             key: 'Status',
             render: (_, record, index) => (
-                <>
-                    <text>{record.Status}</text>
-
-                </>
+               tagColor(record.Status)
 
             ),
         },

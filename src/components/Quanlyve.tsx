@@ -177,7 +177,7 @@ const Quanlyve = () => {
 
         getTickets();
 
-    }, [])
+    },[isModalVisible])
 
     const columns: ColumnsType<tickets> = [
         {
@@ -289,7 +289,7 @@ const Quanlyve = () => {
                                 
                                 shape="round"
                                 size="large"
-                                style={{ float: "right", backgroundColor: '#FFFFFF',fontWeight:"bolder", borderRadius: "15px", borderColor: '#ff6600' }}
+                                style={{ float: "right", backgroundColor: '#FFFFFF',fontWeight:"bolder", borderRadius: "15px", borderColor: '#ff66000' }}
                                 onClick={handleOpenModal}
                             ><span style={{ color: "#FF993C",fontWeight:"bolder" }}>Lọc vé</span>
                             </Button>
